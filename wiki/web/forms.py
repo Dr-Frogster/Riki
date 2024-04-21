@@ -6,6 +6,7 @@ from flask_wtf import FlaskForm
 from wtforms import BooleanField
 from wtforms import StringField
 from wtforms import TextAreaField
+from wtforms import FileField
 from wtforms import PasswordField
 from wtforms.validators import InputRequired
 from wtforms.validators import ValidationError
@@ -38,6 +39,7 @@ class EditorForm(FlaskForm):
     title = StringField('', [InputRequired()])
     body = TextAreaField('', [InputRequired()])
     tags = StringField('')
+    photo = FileField('Image File')
 
 
 class LoginForm(FlaskForm):
