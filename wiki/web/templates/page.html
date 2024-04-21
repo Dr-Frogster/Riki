@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 
 {% block title %}
-	{{ page.title }}
+    {{ page.title }}
 {% endblock title %}
 
 {% block content %}
@@ -17,7 +17,9 @@
       <a href="{{ url_for('wiki.delete', url=page.url) }}" class="btn btn-danger">Yes, delete.</a>
     </div>
   </div>
-	{{ page }}
+
+  <h1>{{ page.title }}</h1>
+  <p>{{ page.body }}</p>
 {% endblock content %}
 
 {% block sidebar %}
@@ -30,9 +32,26 @@
   </ul>
 {% endif %}
 <h3>Actions</h3>
+
 <ul class="nav nav-tabs nav-stacked">
-	<li><a href="{{ url_for('wiki.edit', url=page.url) }}">Edit</a></li>
-  <li><a href="{{ url_for('wiki.move', url=page.url) }}">Move</a></li>
-  <li><a href="#confirmDelete" data-toggle="modal" class="text-error">Delete</a></li>
+    <li><a href="{{ url_for('wiki.edit', url=page.url) }}">Edit</a></li>
+    <li><a href="{{ url_for('wiki.move', url=page.url) }}">Move</a></li>
+    <li><a href="#confirmDelete" data-toggle="modal" class="text-error">Delete</a></li>
+    <li><a href="{{ url_for('wiki.download', url=page.url, format='txt') }}">Download as Text</a></li>
+    <li><a href="#" class="btn btn-link" onclick="generatePDF(); return false;" style="text-align: left;">Download as PDF</a></li>
 </ul>
+
+<script type="text/javascript">
+    function generatePDF() {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+        doc.text("Title: {{ page.title }}", 10, 10);
+        doc.text("Body: {{ page.body }}", 10, 20);
+        const title = "{{ page.title }}";
+        const fileName = "wiki_" + title.substring(0, 10) + ".pdf";
+
+        doc.save(fileName);
+    }
+</script>
 {% endblock sidebar %}
+

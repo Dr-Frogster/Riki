@@ -2,7 +2,9 @@
     Routes
     ~~~~~~
 """
-from flask import Blueprint
+import io
+
+from flask import Blueprint, send_file
 from flask import flash
 from flask import redirect
 from flask import render_template
@@ -12,6 +14,7 @@ from flask_login import current_user
 from flask_login import login_required
 from flask_login import login_user
 from flask_login import logout_user
+from werkzeug.utils import secure_filename
 
 from wiki.core import Processor
 from wiki.web.forms import EditorForm
@@ -102,6 +105,20 @@ def delete(url):
     current_wiki.delete(url)
     flash('Page "%s" was deleted.' % page.title, 'success')
     return redirect(url_for('wiki.home'))
+
+
+@bp.route('/download/<path:url>/')
+@protect
+def download(url):
+    page = current_wiki.get_or_404(url)
+    title = page.title
+    text_content = f"{title}\n\n{page.body}"
+    filename = secure_filename(f"{url.replace('/', '_')}")
+    file_obj = io.BytesIO()
+    file_obj.write(text_content.encode())
+    file_obj.seek(0)
+    return send_file(file_obj, as_attachment=True, mimetype='text/plain', download_name=f"{filename}.txt")
+
 
 
 @bp.route('/tags/')
