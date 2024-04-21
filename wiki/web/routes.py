@@ -123,11 +123,24 @@ def tag(name):
 def search():
     form = SearchForm()
     if form.validate_on_submit():
-        results = current_wiki.search(form.term.data, form.ignore_case.data)
-        return render_template('search.html', form=form,
-                               results=results, search=form.term.data)
+        if form.search_option.data == 'tags':
+            if ',' in form.term.data:
+                tags = form.term.data.split(',')
+            else:
+                tags = [form.term.data]
+            results = current_wiki.search_by_tags(tags, form.ignore_case.data)
+        elif form.search_option.data == 'title':
+            if ',' in form.term.data:
+                titles = form.term.data.split(',')
+            else:
+                titles = [form.term.data]
+            results = current_wiki.search_by_title(titles, form.ignore_case.data)
+        elif form.search_option.data == 'body':
+            results = current_wiki.search_by_body(form.term.data, form.ignore_case.data)
+        else:
+            results = current_wiki.search(form.term.data, form.ignore_case.data)
+        return render_template('search.html', form=form, results=results, search=form.term.data)
     return render_template('search.html', form=form, search=None)
-
 
 @bp.route('/user/login/', methods=['GET', 'POST'])
 def user_login():

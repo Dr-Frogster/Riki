@@ -7,6 +7,7 @@ from wtforms import BooleanField
 from wtforms import StringField
 from wtforms import TextAreaField
 from wtforms import PasswordField
+from wtforms.fields.choices import RadioField
 from wtforms.validators import InputRequired
 from wtforms.validators import ValidationError
 
@@ -28,6 +29,10 @@ class URLForm(FlaskForm):
 
 class SearchForm(FlaskForm):
     term = StringField('', [InputRequired()])
+
+    search_option = RadioField('Search Option', choices=[('tags', 'Search by Tags'),
+                                                         ('title', 'Search by Title'),
+                                                         ('body', 'Search by Body')])
     ignore_case = BooleanField(
         description='Ignore Case',
         # FIXME: default is not correctly populated
