@@ -2,7 +2,11 @@
     Routes
     ~~~~~~
 """
-from flask import Blueprint
+
+import os
+from datetime import datetime, timezone
+
+from flask import Blueprint, current_app
 from flask import flash
 from flask import redirect
 from flask import render_template
@@ -12,6 +16,7 @@ from flask_login import current_user
 from flask_login import login_required
 from flask_login import login_user
 from flask_login import logout_user
+from werkzeug.utils import secure_filename
 
 from wiki.core import Processor
 from wiki.web.forms import EditorForm
@@ -59,6 +64,16 @@ def create():
     return render_template('create.html', form=form)
 
 
+
+@bp.route('/gallery')
+def gallery():
+    images = os.listdir(current_app.config['UPLOAD_DIR'])
+    images = ['upload/' + file for file in images]
+    return render_template('gallery.html', images=images)
+
+
+
+
 @bp.route('/edit/<path:url>/', methods=['GET', 'POST'])
 @protect
 def edit(url):
@@ -68,6 +83,11 @@ def edit(url):
         if not page:
             page = current_wiki.get_bare(url)
         form.populate_obj(page)
+        if 'file' in request.files:
+            file = request.files['file']
+            if file.filename != '':
+                filename = secure_filename(file.filename)
+                file.save(os.path.join(current_app.config['UPLOAD_DIR'], filename))
         page.save()
         flash('"%s" was saved.' % page.title, 'success')
         return redirect(url_for('wiki.display', url=url))
