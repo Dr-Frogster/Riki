@@ -2,11 +2,13 @@
     Forms
     ~~~~~
 """
+from wtforms import RadioField
 from flask_wtf import FlaskForm
 from wtforms import BooleanField
 from wtforms import StringField
 from wtforms import TextAreaField
 from wtforms import PasswordField
+from wtforms import FileField
 from wtforms.validators import InputRequired
 from wtforms.validators import ValidationError
 
@@ -28,6 +30,10 @@ class URLForm(FlaskForm):
 
 class SearchForm(FlaskForm):
     term = StringField('', [InputRequired()])
+
+    search_option = RadioField('Search Option', choices=[('tags', 'Search by Tags'),
+                                                         ('title', 'Search by Title'),
+                                                         ('body', 'Search by Body')])
     ignore_case = BooleanField(
         description='Ignore Case',
         # FIXME: default is not correctly populated
@@ -38,6 +44,7 @@ class EditorForm(FlaskForm):
     title = StringField('', [InputRequired()])
     body = TextAreaField('', [InputRequired()])
     tags = StringField('')
+    photo = FileField('Image File')
 
 
 class LoginForm(FlaskForm):

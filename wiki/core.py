@@ -365,13 +365,40 @@ class Wiki(object):
                 tagged.append(page)
         return sorted(tagged, key=lambda x: x.title.lower())
 
-    def search(self, term, ignore_case=True, attrs=['title', 'tags', 'body']):
+    def search_by_body(self, terms, ignore_case=True):
+        if isinstance(terms, str):
+            terms = [terms]
         pages = self.index()
-        regex = re.compile(term, re.IGNORECASE if ignore_case else 0)
-        matched = []
+        matching_pages = []
         for page in pages:
-            for attr in attrs:
-                if regex.search(getattr(page, attr)):
-                    matched.append(page)
-                    break
-        return matched
+            if ignore_case:
+                if all(term.strip().lower() in page.body.lower() for term in terms):
+                    matching_pages.append(page)
+            else:
+                if all(term.strip() in page.body for term in terms):
+                    matching_pages.append(page)
+        return matching_pages
+
+    def search_by_title(self, titles, ignore_case=True):
+        pages = self.index()
+        matching_pages = []
+        for page in pages:
+            if ignore_case:
+                if any(title.strip().lower() in page.title.lower() for title in titles):
+                    matching_pages.append(page)
+            else:
+                if any(title.strip() in page.title for title in titles):
+                    matching_pages.append(page)
+        return matching_pages
+
+    def search_by_tags(self, tags, ignore_case=True):
+        pages = self.index()
+        matching_pages = []
+        for page in pages:
+            if ignore_case:
+                if all(tag.strip().lower() in page.tags.lower().split(',') for tag in tags):
+                    matching_pages.append(page)
+            else:
+                if all(tag.strip() in page.tags.split(',') for tag in tags):
+                    matching_pages.append(page)
+        return matching_pages

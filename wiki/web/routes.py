@@ -2,7 +2,10 @@
     Routes
     ~~~~~~
 """
-from flask import Blueprint
+import io
+import os
+
+from flask import Blueprint, current_app, send_file
 from flask import flash
 from flask import redirect
 from flask import render_template
@@ -13,6 +16,7 @@ from flask_login import login_required
 from flask_login import login_user
 from flask_login import logout_user
 from flask import jsonify
+from werkzeug.utils import secure_filename
 
 from wiki.core import Processor
 from wiki.web.forms import EditorForm
@@ -72,6 +76,11 @@ def edit(url):
         if not page:
             page = current_wiki.get_bare(url)
         form.populate_obj(page)
+        if 'file' in request.files:
+            file = request.files['file']
+            if file.filename != '':
+                filename = secure_filename(file.filename)
+                file.save(os.path.join(current_app.config['UPLOAD_DIR'], filename))
         page.save()
         flash('"%s" was saved.' % page.title, 'success')
         return redirect(url_for('wiki.display', url=url))
@@ -127,11 +136,24 @@ def tag(name):
 def search():
     form = SearchForm()
     if form.validate_on_submit():
-        results = current_wiki.search(form.term.data, form.ignore_case.data)
-        return render_template('search.html', form=form,
-                               results=results, search=form.term.data)
+        if form.search_option.data == 'tags':
+            if ',' in form.term.data:
+                tags = form.term.data.split(',')
+            else:
+                tags = [form.term.data]
+            results = current_wiki.search_by_tags(tags, form.ignore_case.data)
+        elif form.search_option.data == 'title':
+            if ',' in form.term.data:
+                titles = form.term.data.split(',')
+            else:
+                titles = [form.term.data]
+            results = current_wiki.search_by_title(titles, form.ignore_case.data)
+        elif form.search_option.data == 'body':
+            results = current_wiki.search_by_body(form.term.data, form.ignore_case.data)
+        else:
+            results = current_wiki.search(form.term.data, form.ignore_case.data)
+        return render_template('search.html', form=form, results=results, search=form.term.data)
     return render_template('search.html', form=form, search=None)
-
 
 @bp.route('/user/login/', methods=['GET', 'POST'])
 def user_login():
@@ -262,3 +284,29 @@ def get_timestamps():
         })
 
     return jsonify(data)
+
+
+
+
+
+
+
+@bp.route('/gallery')
+def gallery():
+    images = os.listdir(current_app.config['UPLOAD_DIR'])
+    images = ['upload/' + file for file in images]
+    return render_template('gallery.html', images=images)
+
+
+
+@bp.route('/download/<path:url>/')
+@protect
+def download(url):
+    page = current_wiki.get_or_404(url)
+    title = page.title
+    text_content = f"{title}\n\n{page.body}"
+    filename = secure_filename(f"{url.replace('/', '_')}")
+    file_obj = io.BytesIO()
+    file_obj.write(text_content.encode())
+    file_obj.seek(0)
+    return send_file(file_obj, as_attachment=True, mimetype='text/plain', download_name=f"{filename}.txt")
