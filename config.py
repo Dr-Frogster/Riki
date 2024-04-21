@@ -2,8 +2,10 @@ SECRET_KEY='a unique and long key'
 TITLE='Riki' 
 HISTORY_SHOW_MAX=30
 PIC_BASE = '/static/content/'
-CONTENT_DIR = 'C:/Users/alexj/OneDrive/Desktop/CSC/CSC 440/group project/content'
-UPLOAD_DIR = 'C:/Users/alexj/OneDrive/Desktop/CSC/CSC 440/group project/wiki/web/static/upload'
-USER_DIR = 'C:/Users/alexj/OneDrive/Desktop/CSC/CSC 440/group project/user'
+
+CONTENT_DIR = 'C:/Workspace/CSC440/Riki_Fox-main/content'
+UPLOAD_DIR = 'C:/Workspace/CSC440/Riki_Fox-main/wiki/web/static/upload'
+USER_DIR = 'C:/Workspace/CSC440/Riki_Fox-main/content'
+
 NUMBER_OF_HISTORY = 5
 PRIVATE = True
