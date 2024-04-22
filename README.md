@@ -21,3 +21,9 @@ As a user, I want to be able to download files in different file formats and pho
 As a user, I want some sort of search feature that will allow me quick and general access to the wiki's knowledge base
 
 As a user, I want a more robust advanced search feature so I can search the pages based off of keywords, phrases, and users, so that it is easier for me to navigate between pages.
+
+# Configuration
+
+1. Change config.py to match your content directory
+2. Change config.py to match you user directory
+3. Change config.py to match your upload directory for files
